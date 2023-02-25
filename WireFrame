@@ -1,0 +1,51 @@
+echo "# SampleTokenizedPersonalLoanNFT" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/iantstaley/SampleTokenizedPersonalLoanNFT.git
+git push -u origin main
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract PersonalLoanNFT is ERC721, Ownable {
+    uint256 private _tokenIdCounter;
+
+    struct Loan {
+        uint256 amount;
+        uint256 interestRate;
+        uint256 duration;
+    }
+
+    mapping(uint256 => Loan) private _loanDetails;
+
+    constructor(string memory name_, string memory symbol_)
+        ERC721(name_, symbol_)
+    {
+        _tokenIdCounter = 0;
+    }
+
+    function mint(address to, uint256 amount, uint256 interestRate, uint256 duration)
+        public
+        onlyOwner
+        returns (uint256)
+    {
+        _tokenIdCounter++;
+        _safeMint(to, _tokenIdCounter);
+        _loanDetails[_tokenIdCounter] = Loan(amount, interestRate, duration);
+        return _tokenIdCounter;
+    }
+
+    function getLoanDetails(uint256 tokenId)
+        public
+        view
+        returns (Loan memory)
+    {
+        require(_exists(tokenId), "PersonalLoanNFT: loan does not exist");
+        return _loanDetails[tokenId];
+    }
+}
